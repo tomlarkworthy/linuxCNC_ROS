@@ -1,0 +1,134 @@
+<launch>
+	
+	<node pkg="usb_cam" name="visp_camera_calibration" type="usb_cam_node" output="screen">
+		
+		<param name="io_method" value="mmap"/><!-- only option that works-->
+		<param name="pixel_format" value="mjpeg"/><!-- or yuyv but slower-->
+		
+		<param name="image_width" value="1280"/><param name="image_height" value="720"/> <!--max res 30FPS acheivable depending on light and encoding-->
+		<param name="image_width" value="800"/><param name="image_height" value="600"/> <!--max res 30FPS depending on light-->
+		<param name="image_width" value="640"/><param name="image_height" value="480"/> <!-- 30fps acheivable depending on light-->
+		
+		<!-- doesn't do anything noticable <param name="autofocus" value="true"/> -->
+	</node>
+
+	<group ns="visp_camera_calibration">
+
+		<node pkg="rxtools" name="rxconsole" type="rxconsole"/>
+		<node pkg="visp_camera_calibration" name="visp_camera_calibration_calibrator" type="visp_camera_calibration_calibrator"/>
+		
+		<node pkg="visp_camera_calibration" name="visp_camera_calibration_image_processing" type="visp_camera_calibration_image_processing">
+		      <param name="gray_level_precision" value="0.7" />
+		      <param name="size_precision" value="0.5" />
+		      <param name="pause_at_each_frame" value="False" />
+
+		      <rosparam param="model_points_x">[0.0, 0.03, 0.06, 0.09, 0.12, 0.15, 0.0, 0.03, 0.06, 0.09, 0.12, 0.15, 0.0, 0.03, 0.06, 0.09, 0.12, 0.15, 0.0, 0.03, 0.06, 0.09, 0.12, 0.15, 0.00, 0.03, 0.06, 0.09, 0.12, 0.15, 0.0, 0.03, 0.06, 0.09, 0.12, 0.15]</rosparam>
+		      <rosparam param="model_points_y">[0.0, 0.00, 0.00, 0.00, 0.00, 0.00, .03, 0.03, 0.03, 0.03, 0.03, 0.03, .06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.09,0.09, 0.09, 0.09, 0.09, 0.09, 0.12, 0.12, 0.12, 0.12, 0.12, 0.12, 0.15,0.15, 0.15, 0.15, 0.15, 0.15]</rosparam>
+		      <rosparam param="model_points_z">[0.0, 0.00, 0.00, 0.00, 0.00, 0.00, 0.0, 0.00, 0.00, 0.00, 0.00, 0.00, 0.0, 0.00, 0.00, 0.00, 0.00, 0.00, 0.0, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.0, 0.00, 0.00, 0.00, 0.00, 0.00]</rosparam>
+
+		      
+		      <rosparam param="selected_points_x">[0.03, 0.03, 0.09, 0.12]</rosparam>
+		      <rosparam param="selected_points_y">[0.03, 0.12, 0.12, 0.03]</rosparam>
+		      <rosparam param="selected_points_z">[0.00, 0.00, 0.00, 0.00]</rosparam>	      
+		</node>
+		
+	</group>
+	
+	<!-- after doing a few calibrations run 
+	rosservice call visp_camera_calibration/calibrate 2 .2 640 480
+	-->
+	
+	<!--
+	Look in the log file for visp_camera_calibration and then add these params to the usb_cam (change the numbers according to log file
+	<rosparam param="D">[0.032095, -0.238155, 0.000104, -0.002138, 0.0000]</rosparam>
+    <rosparam param="K">[723.715912, 0.000000, 318.180121, 0.000000, 719.919423, 280.697379, 0.000000, 0.000000, 1.000000]</rosparam>
+    <rosparam param="R">[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]</rosparam>
+    <rosparam param="P">[723.715912, 0.000000, 318.180121, 0.000000, 0.000000, 719.919423, 280.697379, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000]</rosparam>
+	-->
+	
+	<!--
+		stdDevErrs: [1.4100730302430666, 1.7605810712239158, 2.8418347138672249, 2.0942496720995991, 3.6297100641823032]
+		stdDevErrsDist: [0.44769200129991144, 0.43932498245771834, 0.46425203288847039, 0.4647514042175141, 0.54981827597987998]
+		D[]
+		  D[0]: -0.0290415351
+		  D[1]: 0
+		  D[2]: 0
+		  D[3]: 0
+		  D[4]: 0
+		K[]
+		  K[0]: 692.1643441
+		  K[1]: 0
+		  K[2]: 320.1759992
+		  K[3]: 0
+		  K[4]: 688.3393174
+		  K[5]: 251.4770261
+		  K[6]: 0
+		  K[7]: 0
+		  K[8]: 1
+		R[]
+		  R[0]: 1
+		  R[1]: 0
+		  R[2]: 0
+		  R[3]: 0
+		  R[4]: 1
+		  R[5]: 0
+		  R[6]: 0
+		  R[7]: 0
+		  R[8]: 1
+		P[]
+		  P[0]: 692.1643441
+		  P[1]: 0
+		  P[2]: 320.1759992
+		  P[3]: 0
+		  P[4]: 0
+		  P[5]: 688.3393174
+		  P[6]: 251.4770261
+		  P[7]: 0
+		  P[8]: 0
+		  P[9]: 0
+		  P[10]: 1
+		  
+		  run 2
+		  
+		  D[]
+  D[0]: 0.03983109092
+  D[1]: 0
+  D[2]: 0
+  D[3]: 0
+  D[4]: 0
+K[]
+  K[0]: 666.015717
+  K[1]: 0
+  K[2]: 319.2997418
+  K[3]: 0
+  K[4]: 662.0900984
+  K[5]: 246.9209726
+  K[6]: 0
+  K[7]: 0
+  K[8]: 1
+R[]
+  R[0]: 1
+  R[1]: 0
+  R[2]: 0
+  R[3]: 0
+  R[4]: 1
+  R[5]: 0
+  R[6]: 0
+  R[7]: 0
+  R[8]: 1
+P[]
+  P[0]: 666.015717
+  P[1]: 0
+  P[2]: 319.2997418
+  P[3]: 0
+  P[4]: 0
+  P[5]: 662.0900984
+  P[6]: 246.9209726
+  P[7]: 0
+  P[8]: 0
+  P[9]: 0
+  P[10]: 1
+  P[11]: 0
+	-->
+
+</launch>

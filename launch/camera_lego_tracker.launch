@@ -1,0 +1,47 @@
+<launch>
+  <node pkg="rxtools" name="rxconsole" type="rxconsole"/>
+
+  <!-- you should first setup your camera grabbing/rectification nodes,
+       see image_pipeline documentation. -->
+  <!--<remap from="camera/image_raw" to="camera/image_rect/"></remap>-->
+  
+  <node pkg="usb_cam" name="camera" type="usb_cam_node" output="log">
+		
+		<param name="io_method" value="mmap"/><!-- only option that works-->
+		<param name="pixel_format" value="mjpeg"/><!-- or yuyv but slower-->
+		
+		<param name="image_width" value="1280"/><param name="image_height" value="720"/> <!--max res 30FPS acheivable depending on light and encoding-->
+		<param name="image_width" value="800"/><param name="image_height" value="600"/> <!--max res 30FPS depending on light-->
+		<param name="image_width" value="640"/><param name="image_height" value="480"/> <!-- 30fps acheivable depending on light-->
+		
+		<rosparam param="D">[0.03983109092, 0.0, 0.0, 0.0, 0.0]</rosparam>
+        <rosparam param="K">[666.015717, 0.000000, 319.2997418, 0.000000, 662.0900984, 246.9209726, 0.000000, 0.000000, 1.000000]</rosparam>
+        <rosparam param="R">[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]</rosparam>
+        <rosparam param="P">[666.015717, 0.000000, 319.2997418, 0.000000, 0.000000, 662.0900984, 246.9209726, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000]</rosparam>
+	
+		<!-- doesn't do anything noticable <param name="autofocus" value="true"/> -->
+		
+		
+  </node>
+  <group ns="camera">
+	<node pkg="image_proc" name="camera_image_proc" type="image_proc" output="screen"/>
+  </group>
+  <!-- tracking node -->
+  <!--<node pkg="visp_tracker" type="tracker" name="tracker_mbt" launch-prefix="valgrind _-tool=massif _-trace-children=yes -v _-log-file=traceMassif.log ">-->
+  <!--<node pkg="visp_tracker" type="tracker" name="tracker_mbt" launch-prefix="xterm -e gdb _-args" >-->
+  <!--<node pkg="visp_tracker" type="tracker" name="tracker_mbt" launch-prefix="valgrind _-tool=callgrind  _-trace-children=yes -v _-log-file=callGrind.log">-->
+  
+  <node pkg="visp_tracker" type="tracker" name="tracker_mbt">
+  
+  
+    <param name="camera_prefix" value="camera" />
+  </node>
+
+  <!-- starts the client while setting the camera input and the model
+       which will be tracked -->
+  <node pkg="visp_tracker" type="client" name="tracker_mbt_client" output="screen" >
+    <param name="camera_prefix" value="camera" />
+    <param name="model_name" value="lego" />
+    <param name="model_path" value="file:///home/tom/dev/usb_vision_servo/models" />
+  </node>
+</launch>

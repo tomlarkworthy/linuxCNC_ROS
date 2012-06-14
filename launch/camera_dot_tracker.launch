@@ -1,0 +1,56 @@
+<launch>
+  <!-- setup some redirection so the rectified image gets delivered into visp_camera_calibration initializer-->
+  <remap from="/camera/image_rect" to="/visp_camera_calibration/image_raw"/>
+  <remap from="/camera/camera_info" to="/visp_camera_calibration/camera_info"/>
+  
+  
+  <node pkg="usb_cam" name="camera" type="usb_cam_node" output="log">
+		
+		<param name="io_method" value="mmap"/><!-- only option that works-->
+		<param name="pixel_format" value="mjpeg"/><!-- or yuyv but slower-->
+		
+		<param name="image_width" value="1280"/><param name="image_height" value="720"/> <!--max res 30FPS acheivable depending on light and encoding-->
+		<param name="image_width" value="800"/><param name="image_height" value="600"/> <!--max res 30FPS depending on light-->
+		<param name="image_width" value="640"/><param name="image_height" value="480"/> <!-- 30fps acheivable depending on light-->
+		
+		<rosparam param="D">[0.03983109092, 0.0, 0.0, 0.0, 0.0]</rosparam>
+        <rosparam param="K">[666.015717, 0.000000, 319.2997418, 0.000000, 662.0900984, 246.9209726, 0.000000, 0.000000, 1.000000]</rosparam>
+        <rosparam param="R">[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]</rosparam>
+        <rosparam param="P">[666.015717, 0.000000, 319.2997418, 0.000000, 0.000000, 662.0900984, 246.9209726, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000]</rosparam>
+	
+		<!-- doesn't do anything noticable <param name="autofocus" value="true"/> -->
+		
+		
+  </node>
+  <group ns="camera">
+	<node pkg="image_proc" name="camera_image_proc" type="image_proc" output="log"/>
+  </group>
+  
+  <!-- we are not doing calibration but the group has to be set to pickup the model_points-->
+  <group ns="visp_camera_calibration">		
+		<node pkg="visp_camera_calibration" name="visp_camera_calibration_image_processing" type="visp_camera_calibration_image_processing" output="log">
+		      <param name="gray_level_precision" value="0.7" />
+		      <param name="size_precision" value="0.1" />
+		      <param name="pause_at_each_frame" value="False" />
+
+		      <rosparam param="model_points_x">[0.0, 0.03, 0.06, 0.09, 0.12, 0.15, 0.0, 0.03, 0.06, 0.09, 0.12, 0.15, 0.0, 0.03, 0.06, 0.09, 0.12, 0.15, 0.0, 0.03, 0.06, 0.09, 0.12, 0.15, 0.00, 0.03, 0.06, 0.09, 0.12, 0.15, 0.0, 0.03, 0.06, 0.09, 0.12, 0.15]</rosparam>
+		      <rosparam param="model_points_y">[0.0, 0.00, 0.00, 0.00, 0.00, 0.00, .03, 0.03, 0.03, 0.03, 0.03, 0.03, .06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.09,0.09, 0.09, 0.09, 0.09, 0.09, 0.12, 0.12, 0.12, 0.12, 0.12, 0.12, 0.15,0.15, 0.15, 0.15, 0.15, 0.15]</rosparam>
+		      <rosparam param="model_points_z">[0.0, 0.00, 0.00, 0.00, 0.00, 0.00, 0.0, 0.00, 0.00, 0.00, 0.00, 0.00, 0.0, 0.00, 0.00, 0.00, 0.00, 0.00, 0.0, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.0, 0.00, 0.00, 0.00, 0.00, 0.00]</rosparam>
+		      
+		      <rosparam param="selected_points_x">[0.03, 0.03, 0.09, 0.12]</rosparam>
+		      <rosparam param="selected_points_y">[0.03, 0.12, 0.12, 0.03]</rosparam>
+		      <rosparam param="selected_points_z">[0.00, 0.00, 0.00, 0.00]</rosparam>	      
+		</node>
+		
+		
+	</group>
+	
+	
+	<node pkg="usb_vision_servo" name="DotTracker" type="DotTracker" output="screen">
+		<param name="camera_topic" value="visp_camera_calibration/image_raw" />
+		<param name="camera_info_topic" value="visp_camera_calibration/camera_info" />
+		<param name="point_correspondence_topic" value="visp_camera_calibration/point_correspondence" />
+		<param name="model_prefix" value="visp_camera_calibration/visp_camera_calibration_image_processing" />
+	</node>
+
+</launch>

@@ -1,0 +1,32 @@
+<package>
+  <description brief="usb_vision_servo">
+
+     usb_vision_servo
+
+  </description>
+  <author>tom</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/usb_vision_servo</url>
+  
+  <depend package="usb_cam"/>
+  <depend package="visp_camera_calibration"/>
+  <depend package="std_msgs"/>
+  <depend package="rospy"/>
+  <depend package="rospy"/>
+  <depend package="roscpp"/>
+  <depend package="geometry_msgs"/>
+  <depend package="visp"/>
+  <depend package="sensor_msgs"/>
+  <depend package="image_geometry"/>
+  <depend package="image_transport"/>
+  <depend package="visp_bridge"/>
+  <depend package="opencv2"/>
+  <depend package="camera_calibration_parsers"/>
+  <depend package="bullet"/>
+  <depend package="tf"/>
+  
+
+</package>
+
+
